@@ -1,11 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
 
-const PROJECT_ID = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-
-function getFunctionUrl(name: string) {
-  return `https://${PROJECT_ID}.supabase.co/functions/v1/${name}`;
-}
-
 // Get Telegram WebApp initData for validation
 function getInitData(): string {
   if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp?.initData) {
