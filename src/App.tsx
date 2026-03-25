@@ -8,6 +8,9 @@ import MinePage from "./pages/MinePage";
 import EarnPage from "./pages/EarnPage";
 import TasksPage from "./pages/TasksPage";
 import RankingPage from "./pages/RankingPage";
+import ShopPage from "./pages/ShopPage";
+import ChestPage from "./pages/ChestPage";
+import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +27,9 @@ const App = () => (
             <Route path="/earn" element={<EarnPage />} />
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/ranking" element={<RankingPage />} />
+            <Route path="/shop" element={<ShopPage />} />
+            <Route path="/chests" element={<ChestPage />} />
+            <Route path="/admin" element={<AdminPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <BottomNav />

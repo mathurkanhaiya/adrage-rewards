@@ -75,6 +75,35 @@ Deno.serve(async (req) => {
         });
       }
 
+      case 'user_tasks': {
+        // Validate initData to get user
+        const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN');
+        if (!botToken || !initData) {
+          return new Response(JSON.stringify({ completedTaskIds: [] }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        // Simple parse - get telegram user id from initData
+        const params = new URLSearchParams(initData);
+        const userStr = params.get('user');
+        if (!userStr) {
+          return new Response(JSON.stringify({ completedTaskIds: [] }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        const telegramUser = JSON.parse(userStr);
+        const { data: dbUser } = await supabase.from('users').select('id').eq('telegram_id', telegramUser.id).single();
+        if (!dbUser) {
+          return new Response(JSON.stringify({ completedTaskIds: [] }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        const { data: userTasks } = await supabase.from('user_tasks').select('task_id').eq('user_id', dbUser.id);
+        return new Response(JSON.stringify({ completedTaskIds: (userTasks || []).map((t: any) => t.task_id) }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       default:
         throw new Error('Unknown data type');
     }
