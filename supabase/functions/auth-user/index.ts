@@ -59,6 +59,10 @@ function generateReferralCode(): string {
   return result;
 }
 
+// Dev mode: allow a specific dev_mode query param for browser testing
+const DEV_MODE_ENABLED = Deno.env.get('DEV_MODE') === 'true';
+const DEV_TELEGRAM_ID = 2139807311;
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -73,17 +77,26 @@ Deno.serve(async (req) => {
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
+    let telegramId: number;
+    let telegramUser: any;
+
     // Validate initData
     const validated = await validateInitData(initData, botToken);
-    if (!validated) {
+
+    if (validated) {
+      telegramUser = JSON.parse(validated.user || '{}');
+      telegramId = telegramUser.id;
+    } else if (DEV_MODE_ENABLED && (!initData || initData === '')) {
+      // Dev mode: skip Telegram validation, use admin account
+      telegramId = DEV_TELEGRAM_ID;
+      telegramUser = { id: DEV_TELEGRAM_ID, first_name: 'Dev', username: 'dev_admin' };
+    } else {
       return new Response(JSON.stringify({ error: 'Invalid Telegram data' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const telegramUser = JSON.parse(validated.user || '{}');
-    const telegramId = telegramUser.id;
     if (!telegramId) {
       return new Response(JSON.stringify({ error: 'No user ID' }), {
         status: 400,
@@ -117,24 +130,26 @@ Deno.serve(async (req) => {
       user = newUser;
 
       // Handle referral from start_param
-      const startParam = validated.start_param;
-      if (startParam?.startsWith('ref_')) {
-        const refCode = startParam.replace('ref_', '');
-        const { data: referrer } = await supabase
-          .from('users')
-          .select('id')
-          .eq('referral_code', refCode)
-          .single();
-
-        if (referrer && referrer.id !== user.id) {
-          await supabase.from('referrals').insert({
-            referrer_id: referrer.id,
-            referred_id: user.id,
-          });
-          await supabase
+      if (validated) {
+        const startParam = validated.start_param;
+        if (startParam?.startsWith('ref_')) {
+          const refCode = startParam.replace('ref_', '');
+          const { data: referrer } = await supabase
             .from('users')
-            .update({ referred_by: referrer.id })
-            .eq('id', user.id);
+            .select('id')
+            .eq('referral_code', refCode)
+            .single();
+
+          if (referrer && referrer.id !== user.id) {
+            await supabase.from('referrals').insert({
+              referrer_id: referrer.id,
+              referred_id: user.id,
+            });
+            await supabase
+              .from('users')
+              .update({ referred_by: referrer.id })
+              .eq('id', user.id);
+          }
         }
       }
     } else {

@@ -15,7 +15,7 @@ export default function EarnPage() {
     );
   }
 
-  const referralLink = `https://t.me/AdsRewardBot?start=ref_${user.referral_code}`;
+  const referralLink = `https://t.me/Adsrewartsbot?start=ref_${user.referral_code}`;
 
   const copyLink = async () => {
     try {

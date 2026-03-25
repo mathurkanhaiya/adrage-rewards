@@ -1,11 +1,12 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Pickaxe, Factory, Gift, ListTodo, Trophy } from 'lucide-react';
+import { Pickaxe, Factory, Gift, ListTodo, Trophy, Wallet } from 'lucide-react';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Home', icon: Pickaxe },
   { path: '/mine', label: 'Mine', icon: Factory },
   { path: '/earn', label: 'Earn', icon: Gift },
   { path: '/tasks', label: 'Tasks', icon: ListTodo },
+  { path: '/withdraw', label: 'Wallet', icon: Wallet },
   { path: '/ranking', label: 'Rank', icon: Trophy },
 ];
 
@@ -22,16 +23,16 @@ export function BottomNav() {
             <button
               key={path}
               onClick={() => navigate(path)}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all duration-200 ${
+              className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-all duration-200 ${
                 isActive
                   ? 'text-primary scale-105'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <Icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
-              <span className="text-[10px] font-medium font-display tracking-wider">{label}</span>
+              <Icon size={18} strokeWidth={isActive ? 2.5 : 1.5} />
+              <span className="text-[9px] font-medium font-display tracking-wider">{label}</span>
               {isActive && (
-                <div className="absolute -bottom-0.5 w-6 h-0.5 rounded-full bg-primary" />
+                <div className="absolute -bottom-0.5 w-5 h-0.5 rounded-full bg-primary" />
               )}
             </button>
           );
