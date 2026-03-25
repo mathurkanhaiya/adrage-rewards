@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
-import { Pickaxe, HandMetal, Calendar, Sparkles } from 'lucide-react';
+import { Pickaxe, HandMetal, Calendar, Sparkles, ShoppingBag, Box } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { WalletCard } from '@/components/WalletCard';
 import { EnergyBar } from '@/components/EnergyBar';
 import { GameActionButton } from '@/components/GameActionButton';
@@ -11,6 +12,7 @@ import { toast } from 'sonner';
 export default function HomePage() {
   const { user, loading, updateUser } = useUser();
   const [lastResult, setLastResult] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleDig = useCallback(async () => {
     try {
@@ -65,7 +67,7 @@ export default function HomePage() {
             Open this app from Telegram to start earning!
           </p>
           <p className="text-xs text-muted-foreground">
-            Launch via @AdsRewardBot in Telegram
+            Launch via @Adsrewartsbot in Telegram
           </p>
         </div>
       </div>
@@ -123,6 +125,40 @@ export default function HomePage() {
         cooldownEnd={user.last_daily_at ? new Date(new Date(user.last_daily_at).getTime() + 86400000).toISOString() : null}
         variant="emerald"
       />
+
+      {/* Quick Links */}
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          onClick={() => navigate('/shop')}
+          className="bg-card-gradient rounded-xl border border-border p-4 shadow-card flex items-center gap-3 hover:border-primary/30 transition-colors"
+        >
+          <ShoppingBag size={20} className="text-primary" />
+          <div className="text-left">
+            <p className="text-xs font-display font-semibold text-foreground">SHOP</p>
+            <p className="text-[10px] text-muted-foreground">Upgrades</p>
+          </div>
+        </button>
+        <button
+          onClick={() => navigate('/chests')}
+          className="bg-card-gradient rounded-xl border border-border p-4 shadow-card flex items-center gap-3 hover:border-primary/30 transition-colors"
+        >
+          <Box size={20} className="text-cyan" />
+          <div className="text-left">
+            <p className="text-xs font-display font-semibold text-foreground">CHESTS</p>
+            <p className="text-[10px] text-muted-foreground">Lootboxes</p>
+          </div>
+        </button>
+      </div>
+
+      {/* Admin link - only for admin */}
+      {user.telegram_id === 2139807311 && (
+        <button
+          onClick={() => navigate('/admin')}
+          className="w-full bg-destructive/10 border border-destructive/20 rounded-xl py-2.5 text-xs font-display text-destructive tracking-wider hover:bg-destructive/20 transition-colors"
+        >
+          ⚙️ ADMIN PANEL
+        </button>
+      )}
     </div>
   );
 }
